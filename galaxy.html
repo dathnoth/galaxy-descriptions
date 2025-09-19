@@ -574,5 +574,13 @@ Include:
     const API_KEY = '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';
 
   </script>
+
+  <script>
+  var allowedPassword = "letmein"; // Change "letmein" to something else
+  var password = prompt("Enter password:");
+  if(password !== allowedPassword) {
+    document.body.innerHTML = "Access Denied";
+  }
+</script>
 </body>
 </html>
