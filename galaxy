@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Product Description Generator</title>
+<style>
+  body {
+    font-family: Inter, sans-serif;
+    background-color: #f3f4f6;
+    color: #1f2937;
+    margin: 0;
+  }
+  .top-section {
+    background: #CC2229;
+    padding: 2rem 2rem 1.2rem 2rem;
+    color: #fff;
+    position: relative;
+  }
+
+  .language-options {
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .logo-box {
+    background-color: white;
+    border-radius: 20px;
+    padding: 12px 20px;
+    display: inline-block;
+    margin-bottom: 1em;
+  }
+
+  .language-options label {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+  }
+  #logo {
+    max-width: 220px;
+    display: block;
+  }
+
+  #output ul {
+    margin: 0 !important;
+    padding-left: 20px !important; /* or 0, depending on preference */
+  }
+
+  #output p {
+    margin: 0 !important;
+    padding: 0 !important;
+    margin-block-start: 0em !important;
+    margin-block-end: 0em !important;
+  }
+
+  .heading-row {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin-bottom: 0.7rem;
+  }
+  h1 {
+    font-weight: 700;
+    font-size: 2rem;
+    color: #fff;
+    letter-spacing: 0.01em;
+    margin: 0;
+  }
+  .pill {
+    display: inline-block;
+    padding: 0.18em 0.9em;
+    font-weight: bold;
+    font-size: 1rem;
+    color: #CC2229;
+    background: #FECC02;
+    border-radius: 999px;
+    border: 2px solid #FECC02;
+    letter-spacing: 0.07em;
+    margin-left: 0.4em;
+    vertical-align: middle;
+    box-shadow: 0 2px 10px #fecc0230;
+  }
+  .accordion {
+    background: #fff;
+    color: #000;
+    margin-bottom: 1rem;
+    border-radius: 0.375rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.75rem 1.25rem;
+    border: none;
+    text-align: left;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .accordion:after {
+    content: '▼';
+    font-size: 0.85rem;
+    margin-left: auto;
+    transition: transform 0.2s;
+  }
+  .accordion.active:after {
+    transform: rotate(-180deg);
+  }
+  .panel {
+    padding: 1rem 1.5rem 1rem 1.5rem;
+    background-color: #fffbea;
+    border-radius: 0.375rem;
+    display: none;
+    color: #CC2229;
+  }
+  .panel.show {
+    display: block;
+  }
+  .edit-btn, .save-btn {
+    margin-top: 0.5rem;
+    padding: 0.4em 1em;
+    background: #CC2229;
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    font-weight: 300;
+    cursor: pointer;
+    font-size: 1rem;
+    display: inline-block;
+  }
+  .edit-area {
+    width: 100%;
+    font-size: 1rem;
+    padding: 0.4em;
+    border-radius: 0.3em;
+    border: 1px solid #CC2229;
+    margin-top: 0.6em;
+    background: #fff;
+    color: #CC2229;
+    min-height: 70px;
+  }
+
+  #instructions {
+    background-color: #fff;
+    border-left: 6px solid #FECC02;
+    color: #000;
+    padding: 1rem;
+    border-radius: 0.475rem;
+    margin-bottom: 1.5rem;
+    font-weight: normal;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 0.5rem;
+  }
+  label {
+    display: block;
+    margin-top: 1rem;
+    font-weight: 600;
+  }
+  .help-text {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+  }
+  input, textarea {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.25rem;
+    font-size: 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+  }
+  button, .generate-btn {
+    margin-top: 1.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #CC2229;
+    color: #fff;
+    border: none;
+    border-radius: 0.375rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .2s, color .2s;
+  }
+  button:disabled {
+    background-color: #fce475;
+    color: #bc2230;
+    cursor: not-allowed;
+  }
+
+  #progressContainer {
+    margin-top: 1rem;
+    display: none;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1rem;
+    background-color: #161b1d;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    color: #1afa29;
+    border: 2px solid #1afa29;
+    min-height: 40px;
+  }
+  #progressText {
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+    color: #1afa29;
+    display: inline-block;
+  }
+  .typing {
+    border-right: .1em solid #1afa29;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .dots {
+    display: inline-block;
+    width: 32px;
+    text-align: left;
+  }
+  .dot {
+    display: inline-block;
+    opacity: 0.3;
+    font-weight: bold;
+    animation: fadeDot 1s infinite;
+    color: #1afa29;
+  }
+  .dot:nth-child(1) { animation-delay: 0s; }
+  .dot:nth-child(2) { animation-delay: 0.25s; }
+  .dot:nth-child(3) { animation-delay: 0.5s; }
+  @keyframes fadeDot {
+    0% { opacity: 0.3; }
+    20% { opacity: 1; }
+    100% { opacity: 0.3; }
+  }
+
+  /* Output columns container */
+  #outputContainer {
+    margin-top: 2rem;
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  /* English and French output styling */
+  #outputEnglish, #outputFrench {
+    background-color: white;
+    border-radius: 0.375rem;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.1);
+    padding: 1rem;
+    white-space: pre-wrap;
+    min-height: 150px;
+  }
+
+  /* Default: display columns as two columns */
+  #outputContainer.two-cols {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  /* Single column (one language) */
+  #outputContainer.one-col {
+    grid-template-columns: 1fr;
+  }
+
+  #elapsedTimer {
+    margin-left: 15px;
+    font-weight: 600;
+    color: #CC2229;
+    font-size: 1rem;
+    vertical-align: middle;
+    display: none;
+  }
+  #estimatedCost {
+    margin-left: 15px;
+    font-weight: 600;
+    color: #555;
+    font-size: 0.95rem;
+    vertical-align: middle;
+    display: none;
+  }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <div class="top-section">
+    <div style="padding: 2rem; max-width: 960px; margin:auto;">
+      <div class="logo-box">
+        <img src="https://www.galaxy.mu/media/logo/stores/1/new_logo.jpg" alt="Galaxy Logo" id="logo" />
+      </div>
+      <div class="heading-row">
+        <h1>Product Description Generator</h1>
+        <span class="pill">BETA</span>
+      </div>
+      <div id="instructions">
+        <strong>How to Use:</strong>
+        <p>Enter the product title and specifications below, then click "Generate Description" to create a detailed, SEO-friendly product description highlighting product benefits and Galaxy's value.</p>
+      </div>
+      <button class="accordion" id="accordionBtn">Review Current Prompt</button>
+      <div id="promptPanel" class="panel">
+        <div id="currentPromptDisplay"></div>
+        <button class="edit-btn" id="editPromptBtn">Edit Prompt</button>
+        <div id="editPromptSection" style="display:none;">
+          <textarea id="editPromptArea" class="edit-area"></textarea>
+          <button class="save-btn" id="savePromptBtn">Save Prompt</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding: 2rem; max-width: 960px; margin:auto;">
+    <label for="title">Product Title</label>
+    <input type="text" id="title" placeholder="Enter product title" />
+    <div class="help-text">Example: Samsung QLED UHD 4K Smart TV</div>
+
+    <label for="specs">Product Specifications</label>
+    <textarea id="specs" rows="6" placeholder="Enter product specifications, features, details..."></textarea>
+    <div class="help-text">Example: Quantum Dot technology, 10-bit color, HDR10+, Tizen OS</div>
+
+    <div class="language-options">
+      <span style="font-weight:600; margin-right:1rem;">Output Language:</span>
+      <label style="margin-top: 0rem;"><input type="checkbox" id="langEnglish" checked /> English</label>
+      <label style="margin-top: 0rem;"><input type="checkbox" id="langFrench" checked /> French</label>
+    </div>
+
+    <button id="generateBtn" onclick="generateDescription()">Generate Description</button>
+    <span id="elapsedTimer">Elapsed time: 0.0s</span>
+    <span id="estimatedCost"></span>
+
+    <div id="progressContainer">
+      <div id="progressText"></div>
+    </div>
+
+    <div id="outputContainer" class="two-cols">
+      <div id="outputEnglish"></div>
+      <div id="outputFrench"></div>
+    </div>
+  </div>
+
+  <script>
+    let currentPrompt = `Write a persuasive product description based on this:
+Title: {title}
+Specifications: {specs} 
+
+Focus on explaining the benefits and advantages each specification provides to the customer.
+Make the description SEO friendly with relevant keywords.
+Mention that this product is available from Galaxy, known for competitive price, excellent service, and top quality.
+Avoid saying the product is exclusively sold by Galaxy.
+Include:
+- A longer, engaging introductory paragraph
+- Bold headings for key benefit areas
+- Clear bullet points that explain the benefits behind the specifications`;
+
+    document.getElementById('accordionBtn').onclick = function() {
+      this.classList.toggle('active');
+      document.getElementById('promptPanel').classList.toggle('show');
+    };
+
+    function refreshPromptDisplay() {
+      const panel = document.getElementById('currentPromptDisplay');
+      panel.innerHTML = currentPrompt
+        .replace(/\n/g, '<br>')
+        .replace(/^- /gm, '• ');
+    }
+    refreshPromptDisplay();
+
+    document.getElementById('editPromptBtn').onclick = function() {
+      const editArea = document.getElementById('editPromptArea');
+
+      editArea.value = currentPrompt;
+      editArea.style.height = 'auto';
+      editArea.style.height = editArea.scrollHeight + 'px';
+
+      document.getElementById('editPromptSection').style.display = 'block';
+      this.style.display = 'none';
+    };
+
+    document.getElementById('savePromptBtn').onclick = function() {
+      currentPrompt = document.getElementById('editPromptArea').value;
+      document.getElementById('editPromptSection').style.display = 'none';
+      document.getElementById('editPromptBtn').style.display = 'inline-block';
+      refreshPromptDisplay();
+    };
+
+    const loadingMessages = [
+      "Decoding specs and title",
+      "Querying Perplexity API",
+      "Distilling benefits into bite-sized brilliance",
+      "Furiously typing away a product description",
+      "Outputting result in just a moment - hold tight"
+    ];
+
+    let timerInterval;
+    let elapsedSeconds = 0;
+    let timerStart;
+
+    function startTimer() {
+      timerStart = Date.now();
+      elapsedSeconds = 0;
+      const timerElement = document.getElementById('elapsedTimer');
+      timerElement.textContent = 'Elapsed time: 0.0s';
+      timerElement.style.display = 'inline-block';
+
+      timerInterval = setInterval(() => {
+        const elapsedMs = Date.now() - timerStart;
+        const elapsedSec = (elapsedMs / 1000).toFixed(1);
+        timerElement.textContent = `Elapsed time: ${elapsedSec}s`;
+      }, 100);
+    }
+
+    function stopTimer() {
+      clearInterval(timerInterval);
+    }
+
+    async function typeText(element, text, speed=30) {
+      element.textContent = '';
+      element.classList.add('typing');
+      for (let i = 0; i < text.length; i++) {
+        element.textContent += text[i];
+        await new Promise(r => setTimeout(r, speed));
+      }
+      element.classList.remove('typing');
+    }
+
+    async function cycleLoadingMessages() {
+      const progressText = document.getElementById('progressText');
+      for (let i = 0; i < loadingMessages.length; i++) {
+        if (i === loadingMessages.length - 1) {
+          progressText.innerHTML = '';
+          await typeText(progressText, loadingMessages[i], 30);
+          const dots = document.createElement('span');
+          dots.className = 'dots';
+          dots.innerHTML = '<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>';
+          progressText.appendChild(dots);
+          await new Promise(r => setTimeout(r, 2500));
+        } else {
+          await typeText(progressText, loadingMessages[i], 30);
+          await new Promise(r => setTimeout(r, 2500));
+        }
+      }
+    }
+
+    async function generateDescription() {
+      const title = document.getElementById('title').value.trim();
+      const specs = document.getElementById('specs').value.trim();
+      const outputEnglish = document.getElementById('outputEnglish');
+      const outputFrench = document.getElementById('outputFrench');
+      const langEnglish = document.getElementById('langEnglish').checked;
+      const langFrench = document.getElementById('langFrench').checked;
+      const button = document.getElementById('generateBtn');
+      const progressContainer = document.getElementById('progressContainer');
+      const timerElement = document.getElementById('elapsedTimer');
+      const costElement = document.getElementById('estimatedCost');
+
+      if (!title || !specs) {
+        outputEnglish.textContent = 'Please enter both product title and specifications.';
+        outputFrench.textContent = '';
+        timerElement.style.display = 'none'; // Hide timer if aborted
+        costElement.style.display = 'none';
+        return;
+      }
+
+      if (!langEnglish && !langFrench) {
+        outputEnglish.textContent = 'Please select at least one language to generate output.';
+        outputFrench.textContent = '';
+        timerElement.style.display = 'none'; // Hide timer if aborted
+        costElement.style.display = 'none';
+        return;
+      }
+
+      button.disabled = true;
+      outputEnglish.textContent = '';
+      outputFrench.textContent = '';
+      progressContainer.style.display = 'block';
+
+      startTimer();
+      costElement.style.display = 'none';
+
+      await cycleLoadingMessages();
+
+      try {
+        let promptBase = currentPrompt
+          .replace('{title}', title)
+          .replace('{specs}', specs);
+
+        const fetchPromises = [];
+
+        if (langEnglish) {
+          const promptEnglish = promptBase + "\n\nPlease generate the product description in English.";
+          fetchPromises.push(fetch(API_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${API_KEY}`
+            },
+            body: JSON.stringify({
+              model: 'sonar-pro',
+              messages: [
+                { role: 'system', content: 'You are a helpful assistant.' },
+                { role: 'user', content: promptEnglish }
+              ],
+              max_tokens: 700,
+              temperature: 0.7
+            })
+          }).then(res => res.json()));
+        }
+
+        if (langFrench) {
+          const promptFrench = promptBase + "\n\nPlease generate the product description in French.";
+          fetchPromises.push(fetch(API_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${API_KEY}`
+            },
+            body: JSON.stringify({
+              
+              model: 'sonar-pro',
+              messages: [
+                { role: 'system', content: 'You are a helpful assistant.' },
+                { role: 'user', content: promptFrench }
+              ],
+              max_tokens: 700,
+              temperature: 0.7
+            })
+          }).then(res => res.json()));
+        }
+
+        const results = await Promise.all(fetchPromises);
+        // Estimate cost: approx 900 tokens * $0.03 per 1000 tokens USD, convert USD to MUR (~45 MUR/USD)
+        const costUSD = 0.03 * (900 / 1000);
+        const exchangeRate = 45;
+        const costMUR = (costUSD * exchangeRate).toFixed(2);
+
+        if (langEnglish) {
+          let descriptionEn = results.shift()?.choices?.[0]?.message?.content || 'No English description generated.';
+          descriptionEn = descriptionEn.replace(/\[\d+\]/g, '');
+          outputEnglish.innerHTML = marked.parse(descriptionEn);
+        } else {
+          outputEnglish.innerHTML = '';
+        }
+
+        if (langFrench) {
+          let descriptionFr = results.shift()?.choices?.[0]?.message?.content || 'No French description generated.';
+          descriptionFr = descriptionFr.replace(/\[\d+\]/g, '');
+          outputFrench.innerHTML = marked.parse(descriptionFr);
+        } else {
+          outputFrench.innerHTML = '';
+        }
+
+        const outputContainer = document.getElementById('outputContainer');
+        if (langEnglish && langFrench) {
+          outputContainer.classList.remove('one-col');
+          outputContainer.classList.add('two-cols');
+        } else {
+          outputContainer.classList.remove('two-cols');
+          outputContainer.classList.add('one-col');
+        }
+
+        const costElement = document.getElementById('estimatedCost');
+        costElement.textContent = `Estimated cost: Rs${costMUR} MUR`;
+        costElement.style.display = 'inline-block';
+
+      } catch (error) {
+        outputEnglish.textContent = 'Error: ' + error.message;
+        outputFrench.textContent = '';
+        const costElement = document.getElementById('estimatedCost');
+        costElement.style.display = 'none';
+      } finally {
+        stopTimer();
+        button.disabled = false;
+        progressContainer.style.display = 'none';
+      }
+    }
+
+    const API_URL = 'https://api.perplexity.ai/chat/completions';
+    const API_KEY = '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';
+
+  </script>
+</body>
+</html>
